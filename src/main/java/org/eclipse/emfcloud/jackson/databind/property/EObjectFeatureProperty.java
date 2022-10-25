@@ -158,9 +158,11 @@ public class EObjectFeatureProperty extends EObjectProperty {
       } else if (defaultValues) {
          Object value = feature.getDefaultValue();
 
+         jg.writeFieldName(getFieldName());
          if (value != null) {
-            jg.writeFieldName(getFieldName());
-            serializer.serialize(value, jg, provider);
+            this.serializer.serialize(value, jg, provider);
+         } else {
+            jg.writeNull();
          }
       }
    }
