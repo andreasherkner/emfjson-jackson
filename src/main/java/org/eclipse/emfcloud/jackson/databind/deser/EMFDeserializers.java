@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emfcloud.jackson.databind.property.EObjectPropertyMap;
 import org.eclipse.emfcloud.jackson.databind.type.EcoreType;
+import org.eclipse.emfcloud.jackson.handlers.NopSecureStringHandler;
 import org.eclipse.emfcloud.jackson.module.EMFModule;
 
 import com.fasterxml.jackson.databind.BeanDescription;
@@ -46,7 +47,7 @@ public class EMFDeserializers extends Deserializers.Base {
          module.getIdentityInfo(),
          module.getTypeInfo(),
          module.getReferenceInfo(),
-         module.getFeatures());
+         module.getFeatures(), NopSecureStringHandler.INSTANCE);
       this.resourceDeserializer = new ResourceDeserializer(module.getUriHandler());
       this.referenceDeserializer = module.getReferenceDeserializer();
       this.mapDeserializer = new EMapDeserializer();

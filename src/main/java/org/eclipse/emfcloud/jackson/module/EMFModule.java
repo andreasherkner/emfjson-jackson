@@ -25,6 +25,8 @@ import org.eclipse.emfcloud.jackson.databind.ser.EMFSerializers;
 import org.eclipse.emfcloud.jackson.databind.ser.EcoreReferenceSerializer;
 import org.eclipse.emfcloud.jackson.databind.ser.NullKeySerializer;
 import org.eclipse.emfcloud.jackson.handlers.BaseURIHandler;
+import org.eclipse.emfcloud.jackson.handlers.NopSecureStringHandler;
+import org.eclipse.emfcloud.jackson.handlers.SecureStringHandler;
 import org.eclipse.emfcloud.jackson.handlers.URIHandler;
 
 import com.fasterxml.jackson.core.JsonFactory;
@@ -49,6 +51,8 @@ public class EMFModule extends SimpleModule {
 
    private JsonSerializer<EObject> referenceSerializer;
    private JsonDeserializer<ReferenceEntry> referenceDeserializer;
+
+   private SecureStringHandler secureStringHandler = NopSecureStringHandler.INSTANCE;
 
    public void setTypeInfo(final EcoreTypeInfo info) { this.typeInfo = info; }
 
@@ -270,5 +274,11 @@ public class EMFModule extends SimpleModule {
    public EcoreTypeInfo getTypeInfo() { return typeInfo; }
 
    public EcoreReferenceInfo getReferenceInfo() { return referenceInfo; }
+
+   public SecureStringHandler getSecureStringHandler() { return secureStringHandler; }
+
+   public void setSecureStringHandler(final SecureStringHandler secureStringHandler) {
+      this.secureStringHandler = secureStringHandler;
+   }
 
 }

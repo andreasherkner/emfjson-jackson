@@ -47,6 +47,7 @@ import org.eclipse.emfcloud.jackson.annotations.EcoreTypeInfo;
 import org.eclipse.emfcloud.jackson.annotations.JsonAnnotations;
 import org.eclipse.emfcloud.jackson.databind.EMFContext;
 import org.eclipse.emfcloud.jackson.databind.type.EcoreTypeFactory;
+import org.eclipse.emfcloud.jackson.handlers.SecureStringHandler;
 import org.eclipse.emfcloud.jackson.module.EMFModule;
 
 import com.fasterxml.jackson.databind.DatabindContext;
@@ -64,17 +65,21 @@ public final class EObjectPropertyMap {
       private final EcoreReferenceInfo referenceInfo;
       private final int features;
 
+      private final SecureStringHandler secureStringHandler;
+
       public Builder(final EcoreIdentityInfo identityInfo, final EcoreTypeInfo typeInfo,
          final EcoreReferenceInfo referenceInfo,
-         final int features) {
+         final int features, final SecureStringHandler secureStringHandler) {
          this.identityInfo = identityInfo;
          this.typeInfo = typeInfo;
          this.referenceInfo = referenceInfo;
          this.features = features;
+         this.secureStringHandler = secureStringHandler;
       }
 
       public static Builder from(final EMFModule module, final int features) {
-         return new Builder(module.getIdentityInfo(), module.getTypeInfo(), module.getReferenceInfo(), features);
+         return new Builder(module.getIdentityInfo(), module.getTypeInfo(), module.getReferenceInfo(), features,
+            module.getSecureStringHandler());
       }
 
       public EObjectPropertyMap construct(final DatabindContext ctxt, final EClass type) {
@@ -152,6 +157,10 @@ public final class EObjectPropertyMap {
          if (isCandidate(feature)) {
             JavaType javaType = factory.typeOf(ctxt, type, feature);
             if (javaType != null) {
+               if (secureStringHandler.shouldHandle(feature)) {
+                  return Optional
+                     .of(new EObjectSecureFeatureProperty(feature, javaType, features, secureStringHandler));
+               }
                return Optional.of(new EObjectFeatureProperty(feature, javaType, features));
             }
          }
@@ -182,7 +191,8 @@ public final class EObjectPropertyMap {
          if (isFeatureMapEntry(eReference)) {
             return true;
          }
-         if (FeatureMapUtil.isFeatureMap(eReference) || eReference.isTransient() || JsonAnnotations.shouldIgnore(eReference)) {
+         if (FeatureMapUtil.isFeatureMap(eReference) || eReference.isTransient()
+            || JsonAnnotations.shouldIgnore(eReference)) {
             return false;
          }
 
@@ -194,7 +204,8 @@ public final class EObjectPropertyMap {
          EcoreTypeInfo currentTypeInfo = null;
 
          if (type != null && !JsonAnnotations.shouldIgnoreType(type)) {
-            currentTypeInfo = JsonAnnotations.getTypeProperty(type, typeInfo.getValueReader(), typeInfo.getValueWriter());
+            currentTypeInfo = JsonAnnotations.getTypeProperty(type, typeInfo.getValueReader(),
+               typeInfo.getValueWriter());
          }
 
          if (currentTypeInfo == null) {
