@@ -82,6 +82,10 @@ public final class EObjectPropertyMap {
             module.getSecureStringHandler());
       }
 
+      public void evictCache() {
+         cache.clear();
+      }
+
       public EObjectPropertyMap construct(final DatabindContext ctxt, final EClass type) {
          if (type == null) {
             buildCache(ctxt);
